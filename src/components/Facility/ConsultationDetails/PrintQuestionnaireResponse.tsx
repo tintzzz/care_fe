@@ -74,31 +74,47 @@ export function PrintQuestionnaireResponse({
       templateSlug={PrintTemplateType.questionnaire_response_logs}
     >
       <div className="max-w-5xl mx-auto">
-        <div>
-          <div className="text-center sm:text-left sm:order-1 print:text-left mb-4 pb-2 border-b border-gray-200">
-            <h2 className="text-gray-500 uppercase text-sm tracking-wide mt-1 font-semibold">
-              {t("questionnaire_response_logs")}
-            </h2>
-          </div>
+        {/* The patient header lives in a <thead className="table-header-group">
+            so the browser repeats it at the top of every printed page
+            (SSMM issue 7). */}
+        <table className="w-full border-collapse">
+          <thead className="table-header-group">
+            <tr>
+              <td className="p-0">
+                <div className="text-center sm:text-left sm:order-1 print:text-left mb-4 pb-2 border-b border-gray-200">
+                  <h2 className="text-gray-500 uppercase text-sm tracking-wide mt-1 font-semibold">
+                    {t("questionnaire_response_logs")}
+                  </h2>
+                </div>
 
-          <EncounterDetails
-            encounter={encounter}
-            patient={encounter?.patient ?? patient}
-          />
+                <EncounterDetails
+                  encounter={encounter}
+                  patient={encounter?.patient ?? patient}
+                />
 
-          <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start mb-4 pb-2 border-b border-gray-200">
-            <div className="text-center sm:text-left sm:order-1">
-              <h3 className="text-lg font-semibold">{questionnaire?.title}</h3>
-              <p className="text-gray-500 text-sm tracking-wide mt-1">
-                {questionnaire?.description}
-              </p>
-            </div>
-          </div>
-
-          <div className="w-full">
-            <ResponseCard item={questionnaireResponse} />
-          </div>
-        </div>
+                <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start mb-4 pb-2 border-b border-gray-200">
+                  <div className="text-center sm:text-left sm:order-1">
+                    <h3 className="text-lg font-semibold">
+                      {questionnaire?.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm tracking-wide mt-1">
+                      {questionnaire?.description}
+                    </p>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </thead>
+          <tbody className="table-row-group">
+            <tr>
+              <td className="p-0">
+                <div className="w-full">
+                  <ResponseCard item={questionnaireResponse} />
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </PrintPreview>
   );

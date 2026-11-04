@@ -279,99 +279,113 @@ export const PrescriptionPreview = ({
       }
     >
       <div className="max-w-5xl mx-auto">
-        <div>
-          {/* Patient Details */}
-          <div className="flex gap-4 pb-2 mb-2">
-            <div className="flex min-w-0 flex-col flex-1 justify-between gap-3">
-              {/* Wrap metadata columns to fit the available paper width. */}
-              <div className="flex flex-wrap gap-4">
-                {/* Left column: Patient, Age/Sex, Mobile */}
-                <div className="min-w-0 space-y-1 flex-[3_1_14rem]">
-                  <DetailRow
-                    label={t("patient")}
-                    value={patient.name}
-                    isStrong
-                  />
-                  <DetailRow
-                    label={`${t("age")} / ${t("sex")}`}
-                    value={
-                      patient
-                        ? `${formatPatientAge(patient, true)}, ${t(`GENDER__${patient.gender}`)}`
-                        : undefined
-                    }
-                    isStrong
-                  />
-                  <DetailRow
-                    label={t("mobile_number")}
-                    value={
-                      patient && formatPhoneNumberIntl(patient.phone_number)
-                    }
-                    isStrong
-                  />
+        {/* The patient header sits in a thead (table-header-group) so it
+            repeats at the top of every printed page (SSMM issue 7). */}
+        <table className="w-full border-collapse">
+          <thead className="table-header-group">
+            <tr>
+              <td className="p-0">
+                {/* Patient Details */}
+                <div className="flex gap-4 pb-2 mb-2">
+                  <div className="flex min-w-0 flex-col flex-1 justify-between gap-3">
+                    {/* Wrap metadata columns to fit the available paper width. */}
+                    <div className="flex flex-wrap gap-4">
+                      {/* Left column: Patient, Age/Sex, Mobile */}
+                      <div className="min-w-0 space-y-1 flex-[3_1_14rem]">
+                        <DetailRow
+                          label={t("patient")}
+                          value={patient.name}
+                          isStrong
+                        />
+                        <DetailRow
+                          label={`${t("age")} / ${t("sex")}`}
+                          value={
+                            patient
+                              ? `${formatPatientAge(patient, true)}, ${t(`GENDER__${patient.gender}`)}`
+                              : undefined
+                          }
+                          isStrong
+                        />
+                        <DetailRow
+                          label={t("mobile_number")}
+                          value={
+                            patient &&
+                            formatPhoneNumberIntl(patient.phone_number)
+                          }
+                          isStrong
+                        />
+                      </div>
+
+                      {/* Right column: Identifiers + Encounter Date */}
+                      <div className="min-w-0 space-y-1 flex-[2_1_12rem] empty:hidden">
+                        {getPatientIdentifiers(patient, {
+                          use: PatientIdentifierUse.official,
+                        }).map((identifier) => (
+                          <DetailRow
+                            key={identifier.config.id}
+                            label={identifier.config.config.display}
+                            value={identifier.value}
+                            isStrong
+                          />
+                        ))}
+                        {prescriptions.length === 1 && (
+                          <DetailRow
+                            label={t("encounter_date")}
+                            value={displayDate}
+                            isStrong
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    {prescriptions.length === 1 &&
+                      prescriptions[0].encounter.current_location && (
+                        <DetailRow
+                          label={t("patient_location")}
+                          value={getLocationPath(
+                            prescriptions[0].encounter.current_location,
+                          )}
+                        />
+                      )}
+                  </div>
+
+                  <div className="shrink-0">
+                    <QRCodeSVG
+                      value={patient.id}
+                      size={85}
+                      level="Q"
+                      marginSize={0}
+                    />
+                  </div>
                 </div>
 
-                {/* Right column: Identifiers + Encounter Date */}
-                <div className="min-w-0 space-y-1 flex-[2_1_12rem] empty:hidden">
-                  {getPatientIdentifiers(patient, {
-                    use: PatientIdentifierUse.official,
-                  }).map((identifier) => (
-                    <DetailRow
-                      key={identifier.config.id}
-                      label={identifier.config.config.display}
-                      value={identifier.value}
-                      isStrong
-                    />
-                  ))}
-                  {prescriptions.length === 1 && (
-                    <DetailRow
-                      label={t("encounter_date")}
-                      value={displayDate}
-                      isStrong
-                    />
-                  )}
-                </div>
-              </div>
-
-              {prescriptions.length === 1 &&
-                prescriptions[0].encounter.current_location && (
-                  <DetailRow
-                    label={t("patient_location")}
-                    value={getLocationPath(
-                      prescriptions[0].encounter.current_location,
-                    )}
-                  />
+                {prescriptions.length > 1 && (
+                  <div className="mb-4 text-sm print:text-xs text-gray-500 border-b pb-2">
+                    {t("prescriptions_count", { count: prescriptions.length })}
+                  </div>
                 )}
-            </div>
-
-            <div className="shrink-0">
-              <QRCodeSVG
-                value={patient.id}
-                size={85}
-                level="Q"
-                marginSize={0}
-              />
-            </div>
-          </div>
-
-          {prescriptions.length > 1 && (
-            <div className="mb-4 text-sm print:text-xs text-gray-500 border-b pb-2">
-              {t("prescriptions_count", { count: prescriptions.length })}
-            </div>
-          )}
-
-          {prescriptions.map((prescription, index) => (
-            <div key={prescription.id}>
-              {index > 0 && (
-                <div className="border-t border-dashed border-gray-300 my-6" />
-              )}
-              <PrescriptionContent
-                prescription={prescription}
-                prescriptionIndex={index}
-                totalCount={prescriptions.length}
-              />
-            </div>
-          ))}
-        </div>
+              </td>
+            </tr>
+          </thead>
+          <tbody className="table-row-group">
+            <tr>
+              <td className="p-0">
+                {prescriptions.map((prescription, index) => (
+                  <div key={prescription.id}>
+                    {index > 0 && (
+                      <div className="border-t border-dashed border-gray-300 my-6" />
+                    )}
+                    <PrescriptionContent
+                      prescription={prescription}
+                      prescriptionIndex={index}
+                      totalCount={prescriptions.length}
+                    />
+                  </div>
+                ))}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </PrintPreview>
   );
