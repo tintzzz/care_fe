@@ -139,60 +139,81 @@ const DispenseOrderPreview = ({
       templateSlug={PrintTemplateType.dispense_order}
     >
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-gray-500 uppercase text-sm tracking-wide font-semibold mb-2">
-          {t("dispense_order")}
-        </h2>
+        {/* Patient header in a thead (table-header-group) repeats on every
+            printed page (SSMM issue 7). */}
+        <table className="w-full border-collapse">
+          <thead className="table-header-group">
+            <tr>
+              <td className="p-0">
+                <h2 className="text-gray-500 uppercase text-sm tracking-wide font-semibold mb-2">
+                  {t("dispense_order")}
+                </h2>
 
-        {/* Patient Details */}
-        <div className="grid md:grid-cols-2 print:grid-cols-2 gap-6 border-t border-gray-200 pt-2">
-          <div className="space-y-2">
-            <DetailRow label={t("patient")} value={patient.name} isStrong />
-            <DetailRow
-              label={`${t("age")} / ${t("sex")}`}
-              value={
-                patient
-                  ? `${formatPatientAge(patient, true)}, ${t(`GENDER__${patient.gender}`)}`
-                  : undefined
-              }
-              isStrong
-            />
-            {getPatientIdentifiers(patient, {
-              use: PatientIdentifierUse.official,
-            }).map((identifier) => (
-              <DetailRow
-                key={identifier.config.id}
-                label={identifier.config.config.display}
-                value={identifier.value}
-                isStrong
-              />
-            ))}
-          </div>
-          <div className="space-y-2">
-            <DetailRow
-              label={t("date")}
-              value={format(new Date(), "dd MMM yyyy, EEEE")}
-              isStrong
-            />
-            <DetailRow
-              label={t("mobile_number")}
-              value={patient && formatPhoneNumberIntl(patient.phone_number)}
-              isStrong
-            />
-            <DetailRow
-              label={t("location")}
-              value={dispenseOrder.location.name}
-              isStrong
-            />
-          </div>
-        </div>
+                {/* Patient Details */}
+                <div className="grid md:grid-cols-2 print:grid-cols-2 gap-6 border-t border-gray-200 pt-2">
+                  <div className="space-y-2">
+                    <DetailRow
+                      label={t("patient")}
+                      value={patient.name}
+                      isStrong
+                    />
+                    <DetailRow
+                      label={`${t("age")} / ${t("sex")}`}
+                      value={
+                        patient
+                          ? `${formatPatientAge(patient, true)}, ${t(`GENDER__${patient.gender}`)}`
+                          : undefined
+                      }
+                      isStrong
+                    />
+                    {getPatientIdentifiers(patient, {
+                      use: PatientIdentifierUse.official,
+                    }).map((identifier) => (
+                      <DetailRow
+                        key={identifier.config.id}
+                        label={identifier.config.config.display}
+                        value={identifier.value}
+                        isStrong
+                      />
+                    ))}
+                  </div>
+                  <div className="space-y-2">
+                    <DetailRow
+                      label={t("date")}
+                      value={format(new Date(), "dd MMM yyyy, EEEE")}
+                      isStrong
+                    />
+                    <DetailRow
+                      label={t("mobile_number")}
+                      value={
+                        patient && formatPhoneNumberIntl(patient.phone_number)
+                      }
+                      isStrong
+                    />
+                    <DetailRow
+                      label={t("location")}
+                      value={dispenseOrder.location.name}
+                      isStrong
+                    />
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </thead>
+          <tbody className="table-row-group">
+            <tr>
+              <td className="p-0">
+                <DispenseOrderContent
+                  dispenseOrder={dispenseOrder}
+                  dispenses={dispenses}
+                />
 
-        <DispenseOrderContent
-          dispenseOrder={dispenseOrder}
-          dispenses={dispenses}
-        />
-
-        {/* Footer */}
-        <PrintFooter leftContent={t("computer_generated_document")} />
+                {/* Footer */}
+                <PrintFooter leftContent={t("computer_generated_document")} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </PrintPreview>
   );

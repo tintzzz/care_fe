@@ -432,7 +432,9 @@ export const PrintChargeItems = (props: {
                 <div className="mb-4 pb-2 border-b border-gray-200 h-20" />
               )}
               <table className="w-full border-collapse">
-                <tbody>
+                {/* Patient header in a thead (table-header-group) repeats on
+                    every printed page (SSMM issue 7). */}
+                <thead className="table-header-group">
                   <tr>
                     <td className="p-0 align-top">
                       <div className="grid md:grid-cols-2 print:grid-cols-2 gap-x-8 gap-y-4 mb-4 text-xs">
@@ -537,7 +539,12 @@ export const PrintChargeItems = (props: {
                           )}
                         </div>
                       </div>
-
+                    </td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="p-0 align-top">
                       {chargeItems?.results &&
                         chargeItems?.results?.length > 0 && (
                           <>
